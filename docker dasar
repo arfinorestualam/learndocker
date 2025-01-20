@@ -1,0 +1,48 @@
+Perbedaan Virtual dan Container
+
+	- Virtual Machine berfokus tidak hanya pada aplikasi, tapi juga sistem operasi (linux, ubuntu dll) yang harus di jalankan. Di 	   mana jika dijalankan atau merestart aplikasi, akan lama karena sama saja dengan menjalankan / restart sistem operasi.
+	   Di situlah keunggulan container, dimana container berfokus hanya pada aplikasi, di mana kita hanya mempackage aplikasi 	   dan dependency nya tanpa menggabungkan sistem operasi. Di mana sistem operasi sendiri sudah di atur oleh container 	   manager. Sehingga, ketika container berjalan dia otomatis menjalankan sesuai dengan sistem operasi host yang 	   menjalankan, tanpa harus menambahkan sistem operasi didalamnya.
+
+Kenapa Container
+
+	- Ketika kita memakai container, aplikasi kita terisolasi satu sama lain. Jika tidak menggunakan container, kita mempunyai 	  aplikasi java dengan versi berbeda, maka sistem operasi akan bingung dan akan crash karena ada ketidak sesuaian versi, 	  maka dari itu kita memakai container, agar tidak terjadi hal semacam itu. Antar Aplikasi pun tidak terjadi crash.
+
+Docker
+
+	- Docker adalah aplikasi yang mengimplementasikan container manager.
+
+Docker arsitektur
+
+	- Docker adalah aplikasi Client dan Server, di mana ketika kita menginstall kita sudah mendapatkan keduanya. Keduanya 	   juga bisa berjalan di operasi sistem yang kita gunakan.
+
+Mengecek docker
+
+	- Untuk memastikan docker berjalan, bisa dengan mengetik di terminal “docker version” jika server docker tidak berjalan, 	   maka akan terjadi error. Jika tidak error maka akan menampilkan client dan server yang di gunakan.
+
+Fitur Docker
+
+	- Docker Registry
+
+		* Tempat menyimpan Docker Image yang akan di gunakan server (docker daemon).
+		* Docker daemon bisa melakukan download (jika belum ada) image di docker registry ketika docker client 		   memerintahkan, selama terhubung dengan docker registry.
+		* Letak registry ada di docker hub, Google Cloud Container Registry, dll.
+
+	- Docker Image
+
+		* Bayangkan docker image itu seperti .exe atau .apk (installer aplikasi), dimana didalamnya terdapat aplikasi dan 	  	   dependency dari aplikasi itu sendiri.
+		* Jika ingin menjalankan suatu aplikasi di docker, kita harus memiliki docker image dari aplikasi tersebut.
+		* Untuk melihat daftar aplikasi image yang ada di docker kita cukup mengetik di terminal : “docker image ls” ls disini 		   menggunakan L kecil bukan i besar.
+		* Jika kita ingin mendownload image dari docker registry, kita tinggal membuat perintah di terminal : “docker image 		  pull namaimage:tag”, contohnya kita ingin mendownload redis “docker image pull redis:latest”. Agar aman, untuk tag 		  bisa di isi latest. Untuk yang ingin di download bisa di cari di docker hub. Image akan di download jika belum ada di 		  server, tapi tidak akan di download jika sudah ada.
+		* Untuk menghapus docker image, gunakan perintah berikut di terminal : “docker image rm namaimage:tag”, 		   sesuaikan tag dengan yang ada di nama image, contoh ingin menghapus redis image dengan tag latest, “docker 		   image rm redis:latest”.
+
+	- Docker Container
+
+		* Docker container seperti aplikasi hasil dari installer, satu image bisa digunakan untuk membuat lebih dari 1 		  container, asalkan secara nama berbeda, misal redis, redis1, redis2 dengan image yang sama.
+		* Ketika image sudah dibuat containernya, maka kita tidak bisa menghapus image tersebut, karena container hanya 		  menggunakan isi dari image tersebut, maka jika bisa di hapus, tidak ada yang bisa digunakan.
+		* Untuk melihat semua container, yang berjalan maupun tidak, bisa menggunakan perintah ini pada terminal : “docker 		   container ls -a”.
+		* Untuk melihat container yang sedang berjalan, bisa menggunakan perintah ini pada terminal : “docker container ls”.
+		* Untuk membuat container bisa menggunakan perintah berikut : “docker container create —name namacontainer 		   namaimage:tag”, contohnya “docker container create —name rediscontainer redis:latest”
+
+		* Status Container :
+			> Awal ketika di buat, container tidak akan berjalan. Sehingga, container perlu di jalankan agar status nya 			   menyala.
+			>
