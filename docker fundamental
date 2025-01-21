@@ -1,64 +1,61 @@
 Differences Between Virtual Machines and Containers
 
-Virtual Machines (VMs) focus not only on applications but also on the operating system (e.g., Linux, Ubuntu) that must be run. Restarting an application on a VM can be time-consuming because it involves restarting the entire operating system. In contrast, containers focus solely on the application, packaging the application and its dependencies without including the operating system. The container manager handles the operating system. Thus, containers run directly on the host's operating system without needing a separate OS inside the container.
+    -   Virtual Machines (VMs) focus not only on applications but also on the operating system (e.g., Linux, Ubuntu) that must be run.
+        Restarting an application on a VM can be time-consuming because it involves restarting the entire operating system.
+        In contrast, containers focus solely on the application, packaging the application and its dependencies without including the operating system.
+        The container manager handles the operating system. Thus, containers run directly on the host's operating system without needing a separate OS inside the container.
 
 
 Why Use Containers
 
-Containers isolate applications from each other. Without containers, running multiple versions of an application (e.g., different Java versions) could confuse the OS and cause crashes due to version mismatches. Containers prevent such issues, ensuring applications do not interfere with one another.
+    -   Containers isolate applications from each other. Without containers, running multiple versions of an application (e.g., different Java versions)
+        could confuse the OS and cause crashes due to version mismatches. Containers prevent such issues, ensuring applications do not interfere with one another.
 
 
 Docker
 
-Docker is an application that implements container management.
+    -   Docker is an application that implements container management.
 
 
 Docker Architecture
 
-Docker operates on a client-server model. When Docker is installed, both the client and server are included and can run on the operating system in use.
+    -   Docker operates on a client-server model. When Docker is installed, both the client and server are included and
+        can run on the operating system in use.
 
 
 Checking Docker
 
-To check if Docker is running, type docker version in the terminal. If the Docker server is not running, an error will occur. If it is running, the client and server versions will be displayed.
+    -   To check if Docker is running, type docker version in the terminal. If the Docker server is not running, an error will occur.
+        If it is running, the client and server versions will be displayed.
 
 
 Docker Features
 
-Docker Registry
+    -   Docker Registry
 
-Stores Docker images used by the Docker server (daemon).
-
-The Docker daemon can download images from the registry when the Docker client requests it, as long as it is connected to the registry.
-
-Registries are available on Docker Hub, Google Cloud Container Registry, etc.
-
-
-Docker Image
-
-Think of a Docker image as an installer (.exe or .apk), containing the application and its dependencies.
-
-To run an application in Docker, you need the Docker image of that application.
-
-List available images with docker image ls.
-
-To download an image, use docker image pull imagename:tag, e.g., docker image pull redis:latest.
-
-To remove an image, use docker image rm imagename:tag, e.g., docker image rm redis:latest.
+        *   Stores Docker images used by the Docker server (daemon).
+        *   The Docker daemon can download images from the registry when the Docker client requests it,
+            as long as it is connected to the registry.
+        *   Registries are available on Docker Hub, Google Cloud Container Registry, etc.
 
 
-Docker Container
+    -   Docker Image
 
-A container is like the installed application from an image. You can create multiple containers from the same image if they have different names, e.g., redis, redis1, redis2.
+        *   Think of a Docker image as an installer (.exe or .apk), containing the application and its dependencies.
+        *   To run an application in Docker, you need the Docker image of that application.
+        *   List available images with docker image ls.
+        *   To download an image, use docker image pull imagename:tag, e.g., docker image pull redis:latest.
+        *   To remove an image, use docker image rm imagename:tag, e.g., docker image rm redis:latest.
 
-Once a container is created, the image cannot be deleted since the container uses its contents.
 
-List all containers (running or not) with docker container ls -a.
+    -   Docker Container
 
-List running containers with docker container ls.
+        *   A container is like the installed application from an image. You can create multiple containers from the same image
+            if they have different names, e.g., redis, redis1, redis2.
+        *   Once a container is created, the image cannot be deleted since the container uses its contents.
+        *   List all containers (running or not) with docker container ls -a.
+        *   List running containers with docker container ls.
+        *   Create a container with docker container create --name containername imagename:tag, e.g., docker container create --name rediscontainer redis:latest.
 
-Create a container with docker container create --name containername imagename:tag, e.g., docker container create --name rediscontainer redis:latest.
-
-Container Status:
-
-When first created, a container will not run. You need to start the container to activate it.
+        *   Container Status:
+            >   When first created, a container will not run. You need to start the container to activate it.
