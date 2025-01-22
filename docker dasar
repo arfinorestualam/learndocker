@@ -76,6 +76,7 @@ Fitur Docker
             >   Untuk menghapus container, kita harus menghentikan container tersebut terlebih dahulu, dan untuk menghapusnya cukup
                 dengan perintah : "docker container rm containerId/containername", jika tidak hafal containerId bisa menggunakan nama containernya saja.
                 Misal kita mempunyai container redis1, kita jalankan dengan : "docker container rm redis1"
+
         *   Container Log:
             >   Untuk mempermudah menemukan akar dari masalah, terkadang kita memerlukan log aktifitas kejadian, di docker container
                 sendiri, menyediakan aktifitas berupa log di container log.
@@ -83,5 +84,51 @@ Fitur Docker
                 contoh : "docker container logs redis1".
             >   Untuk melihat log secara realtime, bisa dengan perintah : "docker container logs -f containerId/containername",
                 contoh : "docker container logs -f redis1"
+
         *   Container Exec:
-            >
+
+            >   Untuk menjalankan aplikasi yang ada di dalam container, kita perlu mengeksekusinya di dalam containernya juga.
+                Untuk menjalankan hal tersebut kita bisa menggunakan fitur container yaitu container exec.
+                Hal ini di lakukan karena untuk menjalankan aplikasi, perlu masuk ke dalam container tersebut.
+            >   Kita bisa menjalankan perintah berikut untuk menjalankan aplikasi : “docker container exec -i -t containerId/containername /bin/bash
+
+                    *   -i artinya input akan aktif ketika mengakses aplikasi, dan ini sifatnya wajib di gunakan.
+                    *   -t artinya kita akan menggunakan terminal sebagai akses ke aplikasi, dimana ini juga wajib untuk digunakan.
+                    *   /bin/bash adalah contoh kode program yang ada di dalam container. Biasanya menggunakan Linux / Unix sehingga terdapat bin/bash yang akan kita eksekusi.
+                        Contoh dari penggunaan perintah diatas adalah sebagai berikut : “docker container exec -i -t redis1 /bin/bash
+                        Setelah melakukan operasi di atas, kita akan masuk ke dalam bash aplikasi, dimana kita bisa memasukkan perintah apapun.
+                        Untuk contohnya kita bisa menggunakan perintah cd / untuk ke root. Lalu ls untuk melihat ada list apa saja di dalam root.
+                        Lalu mengetik redis-cli untuk melakukan operasi redis yang biasa di lakukan dengan terminal.
+                        Dan kita bisa typing exit untuk keluar dari container.
+
+        *   Container Port:
+
+            >   Kita tidak bisa mengeksekusi sebuah aplikasi di dalam container secara langsung, maka kita menggunakan container exec.
+                Di dalam aplikasi yang ada di container terdapat port, yang kita bisa lihat dengan perintah docker container ls.
+                Seperti yang kita ketahui, port yang ada di dalam container, bukan lah port yang ada di sistem operasi kita,
+                jika kita membuka localhost dengan port seperti container, maka tidak akan terjadi apapun.
+                Untuk itu ada fitur port forwarding, dimana kita membuka port yang ada di laptop kita (localhost)
+                untuk memberikan akses ke port yang ada di container. Semisal kira membuka port 1234 di laptop kita,
+                untuk mengakses port container 80. Setelah melakukan hal ini, kita akan bisa mengakses container dengan
+                localhost di tambah port yang ada di laptop kita.
+            >   Untuk melakukan port forwarding ini, kita harus membuat ulang container, atau membuat container baru,
+                karena tidak bisa melakukan setelah container sudah terbuat. Untuk melakukan port forwarding, kita bisa
+                menggunakan perintah berikut : "docker container create --name containername -- publish laptopport:containerport image:tag".
+                Contohnya : "docker container create --name nginx1 --publish 8080:80 nginx:latest".
+                Tantangannya adalah kita harus tau port yang di gunakan oleh aplikasi tersebut.
+                Untuk mengetahui, bisa menggunakan cara membuat dulu, lalu melihat portnya, menghapus dan membuat baru dengan port forwarding.
+                Apabila port nya kita tidak tau, maka percuma karena port laptop kita ketika diakses, tidak akan membuka aplikasi di container.
+
+        *   Container Enviroment Variable:
+
+            >   Enviroment variable adalah salah satu teknik agar konfigurasi aplikasi bisa di rubah secara dinamis, contohnya
+                seperti user dan password pada DB. Dengan adanya teknik ini, kita bisa mengubah konfigurasi aplikasi tanpa harus
+                mengubahnya di dalam aplikasi, contohnya seperti hard code username password DB di aplikasinya langsung.
+            >   Untuk menambah enviroment variable, docker mempunyai perintah sebagai berikut : "docker container create --name
+                containername --env KEY="value" --env KEY2="value" image:tag", jika kita hanya butuh 1 env key yang diberikan hanya 1,
+                jika lebih, tinggal disesuaikan key2, key3 dst. Contohnya kita akan menggunakan monggodb, biasanya dibagian description
+                dari image, terdapat key yang bisa digunakan, jika di monggo ada MONGO_INITDB_ROOT_USERNAME dan MONGO_INITDB_ROOT_PASSWORD
+                untuk key username dan password. Berikut contoh penggunaannya : "docker container create --name mongo1 --publish 27017:27017
+                --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest". Kita tidak bisa mengubah enviroment
+                yang sudah diberikan, jika ingin merubah, maka bisa membuat baru container dengan enviroment yang berbeda.
+
