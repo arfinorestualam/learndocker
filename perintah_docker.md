@@ -84,3 +84,28 @@
 - **Contoh**: `docker container create --name mongo1 --publish 27017:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
 - **Kegunaan**: Menambahkan environment variable ke container untuk konfigurasi aplikasi.
 
+### Container Stats
+
+- **Perintah**: `docker container stats`
+- **Kegunaan**: Menampilkan penggunaan resource seperti CPU dan Memory untuk setiap container. Berguna untuk memantau container mana yang menggunakan resource secara berlebihan.
+
+### Container Resource Limit
+
+#### Membatasi Penggunaan Resource oleh Container
+- **Perintah**: `docker container create --name namacontainer --publish port1:port2 --memory memorylimit --cpus cpulimit namaimage:tag`
+- **Contoh**: `docker container create --name smallnginx --publish 8081:80 --memory 100m --cpus 0.5 nginx:latest`
+- **Keterangan**:
+    - `--memory`: Mengatur limit penggunaan memori. Contoh: `100m` untuk 100 MB, `1g` untuk 1 GB.
+    - `--cpus`: Mengatur limit penggunaan CPU. Contoh: `0.5` untuk setengah core CPU.
+
+### Bind Mounts
+
+#### Menggunakan Bind Mounts untuk File Sharing
+- **Perintah**: `docker container create --name namacontainer --mount "type=bind,source=folderhost,destination=foldercontainer,readonly" namaimage:tag`
+- **Contoh**: `docker container create --name mongodata --mount "type=bind,source=/Users/khannedy/mongo-data,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
+- **Keterangan**:
+    - `type`: Jenis mount, misalnya `bind` atau `volume`.
+    - `source`: Lokasi file atau folder di sistem host.
+    - `destination`: Lokasi file atau folder di container.
+    - `readonly`: Opsi tambahan untuk membuat file/folder hanya dapat dibaca.
+

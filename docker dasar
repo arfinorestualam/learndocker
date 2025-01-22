@@ -132,3 +132,39 @@ Fitur Docker
                 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest". Kita tidak bisa mengubah enviroment
                 yang sudah diberikan, jika ingin merubah, maka bisa membuat baru container dengan enviroment yang berbeda.
 
+        *   Container Stats:
+            >   Ketika kita menggunakan docker dan menjalankan beberapa container, penggunaan resources seperti CPU dan Memory hanya terlihat
+                untuk docker saja. Kita tidak tau detail container mana yang memakan resource banyak ketika menggunakan monitor aktifitas (mac)
+                atau task manager (windows). Untuk menyelesaikan masalah tersebut, ada perintah yang bisa di jalankan,
+                yaitu : "docker container stats".
+
+        *   Container Resource Limit:
+            >   Untuk di linux, ketika kita membuat container, container tersebut akan menggunakan semua cpu dan memory yang tersedia
+                di host. Sedangkan jika di Mac atau Windows dia akan menggunakan semua memory dan cpu yang sudah di berikan sistem, 100%
+                dari 20% resources yang diberikan. Jika terjadi kesalahan yang menyebabkan penggunaan resource berlebih, hal ini bisa
+                berdampak bukan hanya ke container yang lain, tetapi juga sistem host yang digunakan. Untuk itu diperlukan resource limit
+                ketika kita membuat container.
+            >   Kita tinggal menambahkan "--memory" untuk mengatur limit memory, sedangkan untuk cpu, bisa menggunakan "--cpus".
+                Untuk contohnya seperti berikut : "docker container create --name smallnginx --publish 8081:80 --memory 100m --cpus 0.5
+                nginx:latest". "100m" di contoh mengartikan 100 mega byte, sedangkan jika kita ingin memberikan 1 giga, kita tinggal menambahkan
+                menggunakan "g", misal "1g". Sedangkan untuk cpu, kita menggunakan titik untuk pengaturannya, bisa dari 0.1 core sampai core
+                dari cpu yang kita kehendaki.
+
+        *   Bind Mounts:
+            >   Bind mounts adalah kemampuan untuk melakukan sharing file atau foleder yang terdapat di sistem host ke container
+                yang ada di docker. Fitur ini berguna ketika kita ingin mengirim konfigurasi dari luar kontainer, semisal menyimpan
+                data yang dibuat di aplikasi container ke dalam folder di sistem host. Jika file atau folder tersebut tidak ada di
+                sistem host, maka otomatis akan dibuatkan oleh docker.
+            >   Kita bisa menambahkan instruksi "--mount" pada saat membuat container untuk menambahkan kemampuan sharing ini.
+                Namun mount ini mempunyai aturan parameter, ada 4 parameter saat menggunakan mount.
+
+                    *   type : untuk type, di isi oleh tipe mount. Apakah bind atau volume.
+                    *   source : source ini adalah parameter yang menentukan lokasi file atau folder di sistem host.
+                    *   destination : untuk parameter ini digunakan untuk menentukan lokasi file atau folder di container.
+                    *   readonly : jika digunakan, maka file atau folder hanya bisa dibaca di container, tidak bisa ditulis.
+
+            >   Perintah untuk melakukan mounting menjadi sebagai berikut : "docker container create --name containername --mount
+                "type=bind,source=folder(yang ada di sistem host),destination=folder(yang ada di container),readonly(jika ingin
+                folder dibaca saja, jika tidak bisa tidak ditulis)"(menggunakan tanda petik agar lebih mudah saja) image:tag".
+                Contoh : "docker container create --name mongodata --mount "type=bind,source=/Users/khannedy/mongo-data,
+                destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
