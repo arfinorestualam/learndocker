@@ -168,3 +168,102 @@ Fitur Docker
                 folder dibaca saja, jika tidak bisa tidak ditulis)"(menggunakan tanda petik agar lebih mudah saja) image:tag".
                 Contoh : "docker container create --name mongodata --mount "type=bind,source=/Users/khannedy/mongo-data,
                 destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
+
+        *   Docker Volume
+            >   Untuk versi terkini disarankan untuk meninggalkan bind mounts dan menggunakan docker volume untuk melakukan hal yang sama.
+            >   Untuk docker volume sendiri mempunyai kelebihan lain, yaitu bisa digunakan untuk memanipulasi (membuat volume,
+                melihat daftar volume dan menghapus volume) storage / volume yang ada di docker. Untuk penyimpanan pun berbeda,
+                jika di bind mounts penyimpanan di lakukan di penyimpanan host, untuk docker volume diatur oleh docker.
+            >   Selama kita membuat container sekarang, otomatis data dari container tersebut disimpan di dalam volume. Sehingga kita akan menemukan banyak volume terbuat meskipun kita belum pernah membuatnya. Untuk melihat docker volume sendiri bisa menggunakan perintah : “docker volume ls”
+            >   Untuk membuat docker volume kita bisa menggunakan perintah : “docker volume create namavolume”. Contoh : “docker volume create redisvolume”.
+            >   Kita bisa menghapus volume yang tidak digunakan oleh container. Jika volume masih digunakan oleh container, maka volume tersebut tidak bisa kita hapus. Perintah untuk menghapus volume adalah : “docker volume rm namavolume”. Contohnya : “docker volume rm redisvolume”.
+
+        *   Container Volume
+            >   Jika kita membuat volume sendiri, kita bisa menghubungkannya dengan container. Keuntungannya adalah jika
+                kita menghapus container yang dihubungkan, data yang ada di volume akan tetap aman.
+            >   Kita bisa menggunakan --mount untuk menghubungkan container dengan volume, namun untuk type nya kita menggunakan volume,
+                dan untuk source nya menggunakan nama yang sudah kita buat. Untuk destinationnya masih menggunakan folder yang ada di container.
+            >   Perintah yang digunakan : "docker container create --name containername --mount "type=volume,source=nama volume(yang sudah dibuat),
+                destination=folder(yang ada di container),readonly(jika ingin folder dibaca saja, jika tidak bisa tidak ditulis)"(menggunakan tanda petik agar lebih mudah saja) image:tag".
+                Contoh : "docker container create --name mongocontainer --mount "type=volume,source=mongovolume(kita buat terlebih dahulu dengan
+                “docker volume create mongovolume”,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
+
+        *   Backup Volume
+            >   Untuk saat ini belum ada cara otomatis untuk membackup volume. Untuk melakukan backup,
+                kita bisa menggunakan container untuk membackup volume dengan cara merubah ke dalam archieve seperti zip atau tar.gz.
+            >   Tahapan melakukan backup:
+
+                *   Matikan container yang ingin kita backup volumenya. Contoh perintah : “docker container stop mongocontainer”.
+                *   Buat container dengan 2 mount, mount yang pertama mount dengan type bind mount ke folder host,
+                    dan mount yang kedua type volume yang ingin kita backup. Sebenarnya kita hanya butuh container, jadi kita bebas
+                    menggunakan image apapun, seperti contoh : "docker container create --name nginxbackup --mount "type=bind,
+                    source=/Users/khannedy/backup,destination=/backup" --mount "type=volume,source=mongocontainer,destination=/data" nginx:latest"
+                *   Jalankan container dan masuk ke dalam terminal container untuk melakukan archieve isi volume dan simpan di bind mount folder.
+                    Contoh : "docker container start nginxbackup", lalu "docker container exec -i -t nginxbackup /bin/bash",
+                    lalu gunakan aplikasi tar "tar cvf /backup/backup.tar.gz /data" (artinya gunakan aplikasi tar untuk copy paste dari
+                    folder /data ke folder /backup di simpan dalam bentuk file backup.tar.gz), tunggu sampai proses selesai, ditandai
+                    dengan terminal bisa menerima perintah lagi, lalu kita exit ke proses selanjutnya : "exit".
+                *   Setelah data backup ada di bind mount folder, matikan container backup dan delete container tersebut,
+                    lalu jalankan kembali container yang sebelumnya kita matikan. Contoh : "docker container stop nginxbackup",
+                    lalu "docker container rm nginxbackup", lalu "docker container start mongocontainer".
+
+            >   Tahapan backup secara langsung dengan menggunakan perintah run:
+
+                *   Matikan container yang ingin kita backup volumenya. Contoh perintah : “docker container stop mongocontainer”.
+                *   Jalankan perintah langsung (membuat, membackup, menghapus container) menggunakan run. Contoh : "
+                    docker container run --rm --name ubuntubackup --mount "type=bind,source=/Users/khannedy/backup,destination=/backup"
+                    --mount "type=volume,source=mongocontainer,destination=/data" ubuntu:latest tar cvf /backup/backup.tar.gz /data".
+                    Menggunakan ubuntu disini karena nginx tidak pernah berhenti, sedangkan ubuntu hanya sekali eksekusi langsung selesai.
+                *   Jalankan kembali container yang sebelumnya kita matikan. Contoh : "docker container start mongocontainer".
+
+        *   Restore Volume
+            >   Kita bisa mengembalikan data yang kita backup dari penyimpanan seperti cloud ke volume baru, dan juga kita bisa memastikan
+                apakah file backup tersebut corrupt atau tidak.
+            >   Tahapan melakukan restore :
+
+                *   Buat volume baru untuk lokasi restore data backup. Contoh : "docker volume create mongodatarestore".
+                *   Buat container baru dengan dua mount (seperti kita membackup), dimana ada type volume untuk restore backup,
+                    dan bind mount folder dari sistem host yang berisi file backup. Contoh : "docker container create --name nginxbackup --mount "type=bind,
+                    source=/Users/khannedy/backup,destination=/backup" --mount "type=volume,source=mongodatarestore,destination=/data" nginx:latest"
+                *   Dari container tadi, masuk dan jalankan perintah melalui terminal untuk melakukan restore dengan cara
+                    mengekstrak isi backup file ke dalam volume yang tadi kita buat. Contoh : "docker container start mongodatabackup",
+                    lalu "docker container exec -i -t mongodatabackup /bin/bash",lalu gunakan perintah untuk masuk ke file data "cd /data",
+                    lalu jalankan "tar xvf /backup/backup.tar.gz --strip 1" (artinya gunakan aplikasi tar untuk ekstrak dari file tar ke folder /data ),
+                    tunggu sampai proses selesai, ditandai dengan terminal bisa menerima perintah lagi, lalu kita exit ke proses selanjutnya : "exit".
+                *   Setelah file backup sudah terisi ke volume, lalu delete container yang tadi kita gunakan untuk melakukan
+                    restore. Contoh : "docker container stop nginxbackup",lalu "docker container rm nginxbackup".
+                *   Volume yang terisi data backup siap digunakan untuk container baru.
+
+            >   Tahapan melakukan restore secara langsung dengan perintah run :
+
+                *   Buat volume baru untuk lokasi restore data backup. Contoh : "docker volume create mongodatarestore".
+                *   Jalankan perintah langsung (membuat, membackup, menghapus container) menggunakan run. Contoh : "
+                    docker container run --rm --name ubuntu --mount "type=bind,source=/Users/khannedy/backup,destination=/backup"
+                    --mount "type=volume,source=mongodatarestore,destination=/data" ubuntu:latest bash -c "cd /data && tar xvf /backup/backup.tar.gz --strip 1"".
+                *   Volume yang terisi data backup siap digunakan untuk container baru. Contoh : "docker container create --name mongocontainerrestore --mount "type=volume,
+                    source=mongorestore,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest".
+
+        *   Docker Network
+            >   Kita mengerti jika antar container itu terisolasi, sehingga jika kita memanggil container lain di dalam container
+                tidak akan berhasil. Untuk itulah docker memiliki fitur network, dimana fitur ini bisa memungkinkan antar container
+                saling berkomunikasi jika dalam satu network yang sama. Sama seperti container, di docker pun fitur network bisa
+                di atur (dilihat, dibuat dan juga di hapus).
+            >   Saat membuat network di docker, kita perlu menentukan driver mana yang harus di gunakan. Dikarenakan antar driver
+                yang ada, terdapat syarat driver tersebut bisa kita gunakan. Berikut driver yang ada dan ketiga driver di bawah ini
+                otomatis ada di dalam docker:
+
+                *   None, ini adalah driver yang pasti digunakan saat kita membuat container, default. Di karenakan jika menggunakan
+                    driver ini maka tidak akan bisa berkomunikasi.
+                *   Bridge, driver yang digunakan untuk membuat network dimana jika container memakai bridge network yang sama, maka
+                    antar container tersebut akan bisa saling komunikasi.
+                *   Host, jenis driver ini hanya akan berjalan pada docker linux. Tipe driver ini akan membuat network yang sama
+                    yang dipakai sistem host.
+
+            >   Untuk melihat network yang ada di docker, kita bisa gunakan perintah : "docker network ls".
+            >   Untuk membuat network baru, kita bisa menggunakan perintah : "docker network create --driver namadriver namanetwork".
+                Jika kita tidak menggunakan --driver, maka driver yang dibuat akan otomatis berjenis bridge. Contoh : "docker
+                network create --driver bridge contohnetwork".
+            >   Ketika ingin menghapus network, pastikan network tersebut belum di gunakan oleh container. Jika sudah digunakan container,
+                maka container tersebut harus di hapus terlebih dahulu, setelah itu baru bisa menghapus network. Untuk perintah
+                menghapus network adalah : "docker network rm namanetwork". Contoh : "docker network rm contohnetwork".
+            >
