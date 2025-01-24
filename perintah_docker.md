@@ -109,3 +109,63 @@
     - `destination`: Lokasi file atau folder di container.
     - `readonly`: Opsi tambahan untuk membuat file/folder hanya dapat dibaca.
 
+### Docker Volume
+
+#### Kelebihan Docker Volume
+- Docker volume direkomendasikan dibandingkan bind mounts karena:
+  - Mendukung manipulasi volume secara langsung (membuat, melihat, dan menghapus volume).
+  - Penyimpanan volume dikelola langsung oleh Docker, berbeda dengan bind mounts yang menggunakan penyimpanan host.
+
+#### Melihat Daftar Volume
+- **Perintah**: `docker volume ls`
+- **Kegunaan**: Menampilkan daftar volume yang ada di Docker.
+
+#### Membuat Volume Baru
+- **Perintah**: `docker volume create namavolume`
+- **Contoh**: `docker volume create redisvolume`
+- **Kegunaan**: Membuat volume baru.
+
+#### Menghapus Volume
+- **Perintah**: `docker volume rm namavolume`
+- **Contoh**: `docker volume rm redisvolume`
+- **Kegunaan**: Menghapus volume yang tidak digunakan oleh container.
+
+#### Container Volume (Menghubungkan Volume dengan Container)
+- **Perintah**: `docker container create --name containername --mount "type=volume,source=namavolume,destination=foldercontainer,readonly" image:tag`
+- **Contoh**: `docker container create --name mongocontainer --mount "type=volume,source=mongovolume,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
+- **Kegunaan**: Menghubungkan volume ke container agar data tetap aman meskipun container dihapus.
+
+#### Backup Volume
+- **Langkah Backup**:
+  1. Matikan container yang volumenya ingin dibackup:  
+     `docker container stop namacontainer`.
+  2. Buat container dengan dua mount: satu bind mount untuk folder host, satu volume untuk data:  
+     `docker container create --name backupcontainer --mount "type=bind,source=/backup,destination=/backup" --mount "type=volume,source=namavolume,destination=/data" image:tag`.
+  3. Jalankan container dan lakukan backup dengan perintah:  
+     `tar cvf /backup/backup.tar.gz /data`.
+
+#### Restore Volume
+- **Langkah Restore**:
+  1. Buat volume baru untuk lokasi restore:  
+     `docker volume create namavolume`.
+  2. Buat container dengan dua mount: bind mount untuk file backup dan volume untuk restore:  
+     `docker container create --name restorecontainer --mount "type=bind,source=/backup,destination=/backup" --mount "type=volume,source=namavolume,destination=/data" image:tag`.
+  3. Jalankan container dan restore backup:  
+     `tar xvf /backup/backup.tar.gz --strip 1`.
+
+### Docker Network
+
+#### Melihat Network
+- **Perintah**: `docker network ls`
+- **Kegunaan**: Melihat daftar network yang tersedia.
+
+#### Membuat Network Baru
+- **Perintah**: `docker network create --driver namadriver namanetwork`
+- **Contoh**: `docker network create --driver bridge mynetwork`
+- **Kegunaan**: Membuat network baru dengan driver tertentu (default: bridge).
+
+#### Menghapus Network
+- **Perintah**: `docker network rm namanetwork`
+- **Contoh**: `docker network rm mynetwork`
+- **Kegunaan**: Menghapus network yang tidak digunakan oleh container.
+

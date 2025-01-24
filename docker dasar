@@ -266,4 +266,5 @@ Fitur Docker
             >   Ketika ingin menghapus network, pastikan network tersebut belum di gunakan oleh container. Jika sudah digunakan container,
                 maka container tersebut harus di hapus terlebih dahulu, setelah itu baru bisa menghapus network. Untuk perintah
                 menghapus network adalah : "docker network rm namanetwork". Contoh : "docker network rm contohnetwork".
-            >
+
+        *   Container Network

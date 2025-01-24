@@ -108,3 +108,63 @@
     - `source`: File or folder path on the host system.
     - `destination`: File or folder path inside the container.
     - `readonly`: Optional flag to make the file/folder read-only.
+
+### Docker Volume
+
+#### Advantages of Docker Volume
+- Docker volumes are recommended over bind mounts because:
+  - They support direct manipulation (creating, viewing, and deleting volumes).
+  - Volume storage is managed directly by Docker, unlike bind mounts which use the host's filesystem.
+
+#### Viewing Volume List
+- **Command**: `docker volume ls`
+- **Usage**: Display the list of volumes in Docker.
+
+#### Creating a New Volume
+- **Command**: `docker volume create volumename`
+- **Example**: `docker volume create redisvolume`
+- **Usage**: Create a new volume.
+
+#### Deleting a Volume
+- **Command**: `docker volume rm volumename`
+- **Example**: `docker volume rm redisvolume`
+- **Usage**: Delete a volume that is not being used by any container.
+
+#### Container Volume (Attaching Volume to Container)
+- **Command**: `docker container create --name containername --mount "type=volume,source=volumename,destination=containerfolder,readonly" image:tag`
+- **Example**: `docker container create --name mongocontainer --mount "type=volume,source=mongovolume,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
+- **Usage**: Attach a volume to a container to ensure data persistence even if the container is deleted.
+
+#### Backup Volume
+- **Backup Steps**:
+  1. Stop the container using the volume you want to back up:  
+     `docker container stop containername`.
+  2. Create a container with two mounts: one bind mount for the host folder and one volume for the data:  
+     `docker container create --name backupcontainer --mount "type=bind,source=/backup,destination=/backup" --mount "type=volume,source=volumename,destination=/data" image:tag`.
+  3. Start the container and perform the backup with the command:  
+     `tar cvf /backup/backup.tar.gz /data`.
+
+#### Restore Volume
+- **Restore Steps**:
+  1. Create a new volume for the restore location:  
+     `docker volume create volumename`.
+  2. Create a container with two mounts: a bind mount for the backup file and a volume for restoration:  
+     `docker container create --name restorecontainer --mount "type=bind,source=/backup,destination=/backup" --mount "type=volume,source=volumename,destination=/data" image:tag`.
+  3. Start the container and restore the backup:  
+     `tar xvf /backup/backup.tar.gz --strip 1`.
+
+### Docker Network
+
+#### Viewing Networks
+- **Command**: `docker network ls`
+- **Usage**: Display the list of available networks.
+
+#### Creating a New Network
+- **Command**: `docker network create --driver drivername networkname`
+- **Example**: `docker network create --driver bridge mynetwork`
+- **Usage**: Create a new network with a specific driver (default: bridge).
+
+#### Deleting a Network
+- **Command**: `docker network rm networkname`
+- **Example**: `docker network rm mynetwork`
+- **Usage**: Remove a network that is not used by any container.
