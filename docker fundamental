@@ -56,6 +56,200 @@ Docker Features
         *   List all containers (running or not) with docker container ls -a.
         *   List running containers with docker container ls.
         *   Create a container with docker container create --name containername imagename:tag, e.g., docker container create --name rediscontainer redis:latest.
+        *   Ports inside the container only work within the container and won’t conflict with ports running on the host operating system.
+            If multiple containers use the same port, it’s not an issue because containers are isolated from each other.
 
-        *   Container Status:
-            >   When first created, a container will not run. You need to start the container to activate it.
+        *   Container Status
+
+            >   When a container is created, it does not run immediately. You need to start the container to activate it.
+            >   To start a container, use this command: "docker container start containerId/containerName". If you don’t remember the containerId,
+                you can use the container name. For example, if you have a container named redis1, start it with: "docker container start redis1".
+            >   To stop a container, use the command: "docker container stop containerId/containerName". If you don’t remember the containerId,
+                use the container name. For example: "docker container stop redis1".
+            >   To delete a container, first stop it and then remove it using: "docker container rm containerId/containerName".
+                For example: "docker container rm redis1".
+
+        *   Container Logs
+
+            >   To troubleshoot issues, you may need to access the logs of container activities. Docker provides these logs through container logs.
+            >   To view the logs of a container, use the command: "docker container logs containerId/containerName".
+                Example: "docker container logs redis1".
+            >   To view real-time logs, use: "docker container logs -f containerId/containerName". Example: "docker container logs -f redis1".
+
+        *   Container Exec
+
+            >   To run applications inside a container, you need to execute them within the container itself using the docker container exec feature.
+            >   Use this command to run applications: "docker container exec -i -t containerId/containerName /bin/bash".
+
+                *   -i enables input for interacting with the application and is mandatory.
+                *   -t opens a terminal to access the application, also mandatory.
+                *   /bin/bash is an example of the program to execute inside the container (typically Linux/Unix-based).
+
+                Example: "docker container exec -i -t redis1 /bin/bash".
+            >   After entering the bash shell, you can execute commands, such as cd / to go to the root, ls to list files,
+                or redis-cli for Redis operations. Use exit to leave the container.
+
+        *   Container Port
+
+            >   Applications inside containers have ports that are separate from the host system’s ports. Accessing localhost
+                with the container’s port won’t work directly. Use port forwarding to map a container’s port to the host’s port.
+                For example, open port 1234 on the host to access port 80 of the container.
+            >   Port forwarding requires creating a new container or recreating an existing one. Use this command:
+                "docker container create --name containerName --publish hostPort:containerPort image:tag".
+                Example: "docker container create --name nginx1 --publish 8080:80 nginx:latest". Ensure you know the application's port container beforehand.
+                If uncertain, inspect the container's configuration and recreate it with the correct port forwarding.
+
+        *   Container Environment Variable
+
+            >   Environment variables allow dynamic configuration changes, such as database usernames and passwords, without modifying the application code.
+            >   Add environment variables during container creation with:
+                "docker container create --name containerName --env KEY=value --env KEY2=value image:tag".
+                Example: "docker container create --name mongo1 --publish 27017:27017 --env MONGO_INITDB_ROOT_USERNAME=fin
+                --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest". Environment variables cannot be modified after container creation.
+                To change them, recreate the container.
+
+        *   Container Stats
+
+            >   When we use Docker and run multiple containers, resource usage such as CPU and memory is only visible for Docker as a whole.
+                We cannot see detailed information about which container consumes the most resources when using Activity Monitor (Mac) or
+                Task Manager (Windows). To address this issue, there is a command that can be executed: "docker container stats".
+
+        *   Container Resource Limit
+
+            >   On Linux, when we create a container, it will use all available CPU and memory resources from the host.
+                Meanwhile, on Mac or Windows, it will use all the memory and CPU allocated by the system, which is 100% of the 20% resources assigned.
+                If an error occurs that causes excessive resource usage, it can impact not only other containers but also the host system being used.
+                Therefore, setting a resource limit is necessary when creating a container.
+            >   We simply add the "--memory" flag to set the memory limit, while for CPU, we can use "--cpus". For example:
+                "docker container create --name smallnginx --publish 8081:80 --memory 100m --cpus 0.5 nginx:latest".
+                In this example, "100m" means 100 megabytes, and if we want to allocate 1 gigabyte, we can use "g", such as "1g".
+                For the CPU, we use decimal values to configure it, ranging from 0.1 core up to the desired number of CPU cores.
+
+        *   Bind Mounts
+
+            >   Bind mounts allow sharing files or folders from the host system with containers in Docker.
+                This feature is useful when we want to send configurations from outside the container, for example,
+                saving data created in the container application into a folder on the host system. If the specified file
+                or folder does not exist on the host system, Docker will automatically create it.
+            >   We can add the "--mount" instruction when creating a container to enable this sharing capability.
+                However, the mount feature has specific parameter rules, requiring four parameters:
+                *   type: Specifies the type of mount, either bind or volume.
+                *   source: Indicates the location of the file or folder on the host system.
+                *   destination: Specifies the location of the file or folder in the container.
+                *   readonly: If this is included, the file or folder will be read-only in the container and cannot be modified.
+
+                The command for mounting is as follows: "docker container create --name containername --mount "type=bind,
+                source=folder(on the host system),destination=folder(on the container),readonly(if you want the folder to be read-only;
+                otherwise, you can omit this)" image:tag. Example: "docker container create --name mongodata --mount "type=bind,
+                source=/Users/khannedy/mongo-data,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin
+                --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
+
+        *   Docker Volume
+
+            >   In the latest versions, it is recommended to move away from bind mounts and use Docker volumes to achieve the same functionality.
+            >   Docker volumes have additional advantages, such as allowing us to manipulate storage/volumes in Docker (creating volumes,
+                viewing volume lists, and deleting volumes). The storage mechanism is also different: while bind mounts
+                store data directly on the host system, Docker volumes are managed by Docker itself.
+            >   When creating a container now, the data from that container is automatically stored in a volume. As a result,
+                you may find many volumes created even if you haven't explicitly made them. To view Docker volumes,
+                you can use the command: "docker volume ls".
+            >   To create a Docker volume, use the command: "docker volume create volumename". Example: "docker volume create redisvolume".
+            >   You can delete volumes that are not being used by any container. If a volume is still in use by a container,
+                it cannot be deleted. The command to delete a volume is: "docker volume rm volumename". Example: "docker volume rm redisvolume".
+
+        *   Container Volume
+
+            >   If we create a volume ourselves, we can link it to a container. The advantage is that if we delete the linked container,
+                the data in the volume will remain safe.
+            >   We can use --mount to link a container to a volume. However, for the type, we use volume, and for the source,
+                we use the name of the volume we've created. The destination still uses the folder within the container.
+            >   The command to use is: "docker container create --name containername --mount "type=volume,source=volume_name(that we created),
+                destination=folder (inside the container), readonly (if you want the folder to be read-only, otherwise it can be writable)"
+                (using quotes for easier formatting) image:tag". Example: "docker container create --name mongocontainer
+                --mount "type=volume,source=mongovolume (we create it first with "docker volume create mongovolume"),
+                destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest".
+
+        *   Backup Volume
+
+            >   Currently, there is no automatic method to backup volumes. To perform a backup, we can use a container
+                to back up the volume by converting it into an archive such as zip or tar.gz.
+            >   Steps to perform a backup:
+
+                *   Stop the container whose volume we want to back up. Example command: "docker container stop mongocontainer".
+                *   Create a container with two mounts. The first mount is a bind mount to a host folder, and the second mount is
+                    the volume that we want to back up. In fact, we only need the container, so we can use any image,
+                    for example: "docker container create --name nginxbackup --mount 'type=bind, source=/Users/khannedy/backup,
+                    destination=/backup' --mount 'type=volume, source=mongocontainer, destination=/data' nginx:latest".
+                *   Run the container and enter the container’s terminal to archive the volume content and store it in
+                    the bind mount folder. Example: "docker container start nginxbackup", then "docker container exec -i
+                    -t nginxbackup /bin/bash", and then use the tar application: "tar cvf /backup/backup.tar.gz /data"
+                    (this means using the tar application to copy the contents of the /data folder to the /backup folder
+                    and save it as a file backup.tar.gz). Wait until the process is complete, indicated by the terminal
+                    accepting new commands, then exit: "exit".
+                *   After the backup data is in the bind mount folder, stop the backup container, delete the container,
+                    and then restart the container we had stopped earlier. Example: "docker container stop nginxbackup",
+                    then "docker container rm nginxbackup", then "docker container start mongocontainer".
+
+            >   Direct backup steps using the run command:
+
+                *   Stop the container whose volume we want to back up. Example command: "docker container stop mongocontainer".
+                *   Run the command directly (creating, backing up, and deleting the container) using run.
+                    Example: "docker container run --rm --name ubuntubackup --mount 'type=bind, source=/Users/khannedy/backup,
+                    destination=/backup' --mount 'type=volume, source=mongocontainer, destination=/data' ubuntu:latest tar
+                    cvf /backup/backup.tar.gz /data". Ubuntu is used here because nginx does not stop, while ubuntu executes once
+                    and finishes immediately.
+                *   Restart the container that we had stopped earlier. Example: "docker container start mongocontainer".
+
+        *   Restore Volume
+            >   We can restore the data we backed up from storage such as the cloud to a new volume, and we can also verify
+                whether the backup file is corrupted or not.
+            >   Steps to perform a restore:
+
+                *   Create a new volume for the backup data restore location. Example: "docker volume create mongodatarestore".
+                *   Create a new container with two mounts (as we did for backup), where one mount is the volume for
+                    restoring the backup, and the other is a bind mount from the host system folder containing the backup file.
+                    Example: "docker container create --name nginxbackup --mount 'type=bind, source=/Users/khannedy/backup,
+                    destination=/backup' --mount 'type=volume, source=mongodatarestore, destination=/data' nginx:latest".
+                *   From the container, enter and run the command via the terminal to restore by extracting the contents
+                    of the backup file into the volume we created. Example: "docker container start mongodatabackup",
+                    then "docker container exec -i -t mongodatabackup /bin/bash", then use the command to navigate to the data file
+                    "cd /data", and then run "tar xvf /backup/backup.tar.gz --strip 1" (this means using the tar application
+                    to extract the contents of the tar file to the /data folder), wait until the process is complete,
+                    indicated by the terminal accepting new commands, then exit to move on to the next step: "exit".
+                *   After the backup file is populated into the volume, delete the container used for the restore process.
+                    Example: "docker container stop nginxbackup", then "docker container rm nginxbackup".
+                *   The volume containing the restored data is ready to be used for a new container.
+
+            >   Steps to perform a direct restore using the run command:
+
+                *   Create a new volume for the backup data restore location. Example: "docker volume create mongodatarestore".
+                *   Run the command directly (creating, backing up, and deleting the container) using run.
+                    Example: "docker container run --rm --name ubuntu --mount 'type=bind, source=/Users/khannedy/backup,
+                    destination=/backup' --mount 'type=volume, source=mongodatarestore, destination=/data' ubuntu:latest
+                    bash -c 'cd /data && tar xvf /backup/backup.tar.gz --strip 1'".
+                *   The volume containing the restored backup data is ready to be used for a new container.
+                    Example: "docker container create --name mongocontainerrestore --mount 'type=volume, source=mongorestore,
+                    destination=/data/db' --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest".
+
+        *   Docker Network
+            >   We understand that containers are isolated from each other, so calling another container within a container
+                will not work. This is where Docker's networking feature comes in, which allows containers to communicate with
+                each other if they are on the same network. Just like containers, Docker's networking feature
+                can be managed (viewed, created, and deleted).
+            >   When creating a network in Docker, we need to specify which driver to use. Each driver has its own requirements
+                for usage. Below are the available drivers, and the three drivers listed here are automatically available in Docker:
+
+                *   None: This is the driver used by default when we create a container. With this driver, containers
+                    cannot communicate with each other.
+                *   Bridge: This driver is used to create a network where containers using the same bridge network can
+                    communicate with each other.
+                *   Host: This driver works only on Docker for Linux. It creates a network that is the same
+                    as the host system's network.
+
+            >   To view the existing networks in Docker, we can use the command: "docker network ls".
+            >   To create a new network, we can use the command: "docker network create --driver drivername networkname".
+                If we do not specify --driver, the network will be created using the default bridge driver.
+                Example: "docker network create --driver bridge examplenetwork".
+            >   When deleting a network, make sure the network is not in use by any container. If the network is in use,
+                the containers must be removed first before the network can be deleted. To delete a network,
+                use the command: "docker network rm networkname". Example: "docker network rm examplenetwork".
