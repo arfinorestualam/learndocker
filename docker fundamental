@@ -201,6 +201,7 @@ Docker Features
                 *   Restart the container that we had stopped earlier. Example: "docker container start mongocontainer".
 
         *   Restore Volume
+
             >   We can restore the data we backed up from storage such as the cloud to a new volume, and we can also verify
                 whether the backup file is corrupted or not.
             >   Steps to perform a restore:
@@ -232,6 +233,7 @@ Docker Features
                     destination=/data/db' --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest".
 
         *   Docker Network
+
             >   We understand that containers are isolated from each other, so calling another container within a container
                 will not work. This is where Docker's networking feature comes in, which allows containers to communicate with
                 each other if they are on the same network. Just like containers, Docker's networking feature
