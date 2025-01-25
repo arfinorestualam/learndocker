@@ -255,3 +255,30 @@ Docker Features
             >   When deleting a network, make sure the network is not in use by any container. If the network is in use,
                 the containers must be removed first before the network can be deleted. To delete a network,
                 use the command: "docker network rm networkname". Example: "docker network rm examplenetwork".
+
+        *   Container Network
+
+            >   After creating a network, we can add containers to the network we created. If more than one container is
+                on the same network, they can communicate with each other. To add a container to a network, we can use the --network
+                option when creating the container. Here is an example of creating a Docker container with a network:
+                "docker container create --name containername --network networkname image:tag". Example:
+                "docker container create --name nginxnet --network nginxnetwork nginx:latest".
+            >   For a container to access another container, it only needs to reference the hostname of that container,
+                which is its container name. Here is an example of communication between MongoDB and Mongo Express:
+
+                *   Create a network: "docker network create mongonetwork" (without --driver, it defaults to bridge).
+                *   Create a MongoDB container on the created network: "docker container create --name mongodb --network
+                    mongonetwork --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=FIN mongo:latest".
+                *   Create a Mongo Express container on the same network: "docker container create --name mongodbexpress
+                    --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://fin:fin@mongodb:27017/"
+                    mongo-express:latest".
+                *   Start both containers: "docker container start mongodb", "docker container start mongodbexpress".
+                *   When accessing localhost on port 8081, it will connect to the MongoDB container. Without this network,
+                    Mongo Express will run independently and cannot communicate with the MongoDB container.
+
+            >   To remove a container from a network, use the following command: "docker network disconnect networkname containername".
+                Example: "docker network disconnect mongonetwork mongodb".
+            >   If a container has already been created and we want to add it to an existing network, we can use the
+                following command: "docker network connect networkname containername". Example: "docker network connect mongonetwork mongodb".
+
+        *   Inspect

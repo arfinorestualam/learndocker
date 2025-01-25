@@ -279,4 +279,27 @@ Fitur Docker
 
         *   Container Network
 
-            >
+            >   Setelah kita membuat network, kita bisa menambahkan container ke network yang kita buat. Jika ada lebih dari 1
+                container dalam network tersebut, maka bisa saling komunikasi antar container. Untuk menambahkannya kita bisa
+                menambahkan perintah --network saat membuat container. Berikut adalah membuat docker dengan network : "docker container create --name containername --network
+                networkname image:tag". Contoh : "docker container create --name nginxnet --network nginxnetwork nginx:latest".
+            >   Untuk container yang ingin mengakses container lain, cukup dengan menyebutkan hostname dari container
+                tersebut, yaitu nama containernya. Disini akan mencontohkan komunikasi antar mongodb dan mongoexpress.
+
+                *   Membuat network : "docker network create mongonetwork" (tidak memakai --driver otomatis bridge).
+                *   Membuat container mongodb dengan network yang kita buat : "docker container create --name mongodb --network
+                    mongonetwork --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=FIN  mongo:latest".
+                *   Membuat container mongoexpres dengan network yang kita buat : "docker container create --name mongodbexpress
+                    --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://fin:fin@mongodb:27017/"
+                    mongo-express:latest".
+                *   Jalankan keduanya : "docker container start mongodb", "docker container start mongodbexpress".
+                *   Ketika kita membuka localhost dengan port 8081, maka akan terkoneksi dengan container mongodb. Jika kita
+                    tidak menggunakan network ini, mongoexpress akan berjalan sendiri dan tidak bisa berkomunikasi dengan
+                    container mongodb yang kita buat.
+
+            >   Jika ingin menghapus container dari network, bisa dengan perintah berikut : "docker network disconnect networkname
+                containername". Contoh : "docker network disconnect mongonetwork mongodb".
+            >   Jika container sudah terlanjur dibuat, dan kita ingin menambahkan di network yang sudah ada, kita bisa menggunakan
+                perintah berikut : "docker network connect networkname containername". Contoh : "docker network connect mongonetwork mongodb".
+
+        *   Inspect
