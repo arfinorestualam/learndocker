@@ -64,7 +64,8 @@ Fitur Docker
 		    namaimage:tag”, contohnya “docker container create —name rediscontainer redis:latest”
 		*   Port yang ada di dalam container, hanya berjalan pada container, tidak akan bentrok dengan port yang berjalan di sistem operasi.
 		    Jika di antara container menggunakan port yang sama, itu juga tidak masalah, karena memang antar container saling terisolasi.
-		*   Status Container :
+
+		*   Status Container
 
 			>   Awal ketika di buat, container tidak akan berjalan. Sehingga, container perlu di jalankan agar status nya menyala.
 			>   Untuk menjalankan docker bisa dengan perintah berikut : "docker container start containerId/namacontainer" jika tidak hafal
@@ -77,7 +78,8 @@ Fitur Docker
                 dengan perintah : "docker container rm containerId/containername", jika tidak hafal containerId bisa menggunakan nama containernya saja.
                 Misal kita mempunyai container redis1, kita jalankan dengan : "docker container rm redis1"
 
-        *   Container Log:
+        *   Container Log
+
             >   Untuk mempermudah menemukan akar dari masalah, terkadang kita memerlukan log aktifitas kejadian, di docker container
                 sendiri, menyediakan aktifitas berupa log di container log.
             >   Untuk melihat log aplikasi container, bisa dengan perintah : "docker container logs containerId/containername",
@@ -85,7 +87,7 @@ Fitur Docker
             >   Untuk melihat log secara realtime, bisa dengan perintah : "docker container logs -f containerId/containername",
                 contoh : "docker container logs -f redis1"
 
-        *   Container Exec:
+        *   Container Exec
 
             >   Untuk menjalankan aplikasi yang ada di dalam container, kita perlu mengeksekusinya di dalam containernya juga.
                 Untuk menjalankan hal tersebut kita bisa menggunakan fitur container yaitu container exec.
@@ -101,7 +103,7 @@ Fitur Docker
                         Lalu mengetik redis-cli untuk melakukan operasi redis yang biasa di lakukan dengan terminal.
                         Dan kita bisa typing exit untuk keluar dari container.
 
-        *   Container Port:
+        *   Container Port
 
             >   Kita tidak bisa mengeksekusi sebuah aplikasi di dalam container secara langsung, maka kita menggunakan container exec.
                 Di dalam aplikasi yang ada di container terdapat port, yang kita bisa lihat dengan perintah docker container ls.
@@ -119,7 +121,7 @@ Fitur Docker
                 Untuk mengetahui, bisa menggunakan cara membuat dulu, lalu melihat portnya, menghapus dan membuat baru dengan port forwarding.
                 Apabila port nya kita tidak tau, maka percuma karena port laptop kita ketika diakses, tidak akan membuka aplikasi di container.
 
-        *   Container Enviroment Variable:
+        *   Container Enviroment Variable
 
             >   Enviroment variable adalah salah satu teknik agar konfigurasi aplikasi bisa di rubah secara dinamis, contohnya
                 seperti user dan password pada DB. Dengan adanya teknik ini, kita bisa mengubah konfigurasi aplikasi tanpa harus
@@ -132,13 +134,15 @@ Fitur Docker
                 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest". Kita tidak bisa mengubah enviroment
                 yang sudah diberikan, jika ingin merubah, maka bisa membuat baru container dengan enviroment yang berbeda.
 
-        *   Container Stats:
+        *   Container Stats
+
             >   Ketika kita menggunakan docker dan menjalankan beberapa container, penggunaan resources seperti CPU dan Memory hanya terlihat
                 untuk docker saja. Kita tidak tau detail container mana yang memakan resource banyak ketika menggunakan monitor aktifitas (mac)
                 atau task manager (windows). Untuk menyelesaikan masalah tersebut, ada perintah yang bisa di jalankan,
                 yaitu : "docker container stats".
 
-        *   Container Resource Limit:
+        *   Container Resource Limit
+
             >   Untuk di linux, ketika kita membuat container, container tersebut akan menggunakan semua cpu dan memory yang tersedia
                 di host. Sedangkan jika di Mac atau Windows dia akan menggunakan semua memory dan cpu yang sudah di berikan sistem, 100%
                 dari 20% resources yang diberikan. Jika terjadi kesalahan yang menyebabkan penggunaan resource berlebih, hal ini bisa
@@ -150,7 +154,8 @@ Fitur Docker
                 menggunakan "g", misal "1g". Sedangkan untuk cpu, kita menggunakan titik untuk pengaturannya, bisa dari 0.1 core sampai core
                 dari cpu yang kita kehendaki.
 
-        *   Bind Mounts:
+        *   Bind Mounts
+
             >   Bind mounts adalah kemampuan untuk melakukan sharing file atau foleder yang terdapat di sistem host ke container
                 yang ada di docker. Fitur ini berguna ketika kita ingin mengirim konfigurasi dari luar kontainer, semisal menyimpan
                 data yang dibuat di aplikasi container ke dalam folder di sistem host. Jika file atau folder tersebut tidak ada di
@@ -170,6 +175,7 @@ Fitur Docker
                 destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
 
         *   Docker Volume
+
             >   Untuk versi terkini disarankan untuk meninggalkan bind mounts dan menggunakan docker volume untuk melakukan hal yang sama.
             >   Untuk docker volume sendiri mempunyai kelebihan lain, yaitu bisa digunakan untuk memanipulasi (membuat volume,
                 melihat daftar volume dan menghapus volume) storage / volume yang ada di docker. Untuk penyimpanan pun berbeda,
@@ -179,6 +185,7 @@ Fitur Docker
             >   Kita bisa menghapus volume yang tidak digunakan oleh container. Jika volume masih digunakan oleh container, maka volume tersebut tidak bisa kita hapus. Perintah untuk menghapus volume adalah : “docker volume rm namavolume”. Contohnya : “docker volume rm redisvolume”.
 
         *   Container Volume
+
             >   Jika kita membuat volume sendiri, kita bisa menghubungkannya dengan container. Keuntungannya adalah jika
                 kita menghapus container yang dihubungkan, data yang ada di volume akan tetap aman.
             >   Kita bisa menggunakan --mount untuk menghubungkan container dengan volume, namun untuk type nya kita menggunakan volume,
@@ -189,6 +196,7 @@ Fitur Docker
                 “docker volume create mongovolume”,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest"
 
         *   Backup Volume
+
             >   Untuk saat ini belum ada cara otomatis untuk membackup volume. Untuk melakukan backup,
                 kita bisa menggunakan container untuk membackup volume dengan cara merubah ke dalam archieve seperti zip atau tar.gz.
             >   Tahapan melakukan backup:
@@ -217,6 +225,7 @@ Fitur Docker
                 *   Jalankan kembali container yang sebelumnya kita matikan. Contoh : "docker container start mongocontainer".
 
         *   Restore Volume
+
             >   Kita bisa mengembalikan data yang kita backup dari penyimpanan seperti cloud ke volume baru, dan juga kita bisa memastikan
                 apakah file backup tersebut corrupt atau tidak.
             >   Tahapan melakukan restore :
@@ -244,6 +253,7 @@ Fitur Docker
                     source=mongorestore,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest".
 
         *   Docker Network
+
             >   Kita mengerti jika antar container itu terisolasi, sehingga jika kita memanggil container lain di dalam container
                 tidak akan berhasil. Untuk itulah docker memiliki fitur network, dimana fitur ini bisa memungkinkan antar container
                 saling berkomunikasi jika dalam satu network yang sama. Sama seperti container, di docker pun fitur network bisa
