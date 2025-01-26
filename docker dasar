@@ -303,3 +303,30 @@ Fitur Docker
                 perintah berikut : "docker network connect networkname containername". Contoh : "docker network connect mongonetwork mongodb".
 
         *   Inspect
+
+            >   Ada cara jika ingin melihat detail dari image, environment variable apa yang digunakan, dan port apa yang digunakan
+                dari image tersebut, atau jika ingin melihat detail dari sebuah container (dari mulai volume yang digunakan, network
+                yang digunakan dll) yaitu dengan fitur bernama inspect. Fitur docker ini bisa digunakan di image, container, volume
+                dan juga network, hal yang perintah "ls" tidak bisa capai.
+            >   Untuk melihat detail dari image, kita bisa gunakan perintah "docker image inspect namaimage:imagetag", contoh : "
+                docker image inspect nginx:latest".
+            >   Untuk melihat detail dari container, kita bisa gunakan perintah "docker container inspect namacontainer",
+                contoh : "docker container inspect mongodb".
+            >   Untuk melihat detail dari volume, kita bisa gunakan perintah "docker volume inspect namavolume", contoh : "docker
+                volume inspect mongodatarestore".
+            >   Untuk melihat detail dari network, kita bisa gunakan perintah "docker network inspect namanetwork", contoh :
+                "docker network inspect mongonetwork".
+
+        *   Prune
+
+            >   Fitur prune adalah fitur yang bisa digunakan ketika kita ingin menghapus yang sudah kita tidak gunakan lagi
+                di docker, seperti container yang sudah di stop, image yang sudah tidak digunakan container, atau volume yang
+                sudah tidak digunakan container.
+            >   Untuk menghapus semua container yang sudah di stop, gunakan perintah "docker container prune".
+            >   Untuk menghapus semua image yang sudah tidak digunakan container manapun, gunakan perintah "docker image prune".
+            >   Untuk menghapus semua network yang sudah tidak digunakan container manapun, gunakan perintah "docker network prune".
+            >   Untuk menghapus semua volume yang sudah tidak digunakan container, gunakan perintah "docker volume prune".
+            >   Untuk menghapus semua hal (container, network, cache, image, namun tidak dengan volume) yang sudah tidak
+                digunakan dalam satu perintah, bisa menggunakan perintah "docker system prune".
+            >   Ketika kita menjalankan perintah, akan ada konfirmasi apakah ingin menghapus (y) atau (n), tinggal pilih y
+                jika yakin ingin menghapus, dan n jika tidak.
