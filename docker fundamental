@@ -282,3 +282,24 @@ Docker Features
                 following command: "docker network connect networkname containername". Example: "docker network connect mongonetwork mongodb".
 
         *   Inspect
+
+            >   There is a way to view detailed information about an image, including the environment variables and ports it uses,
+                or to see the details of a container, such as the volumes and networks it uses, through a feature called inspect.
+                This Docker feature can be used for images, containers, volumes, and networks, which the "ls" command cannot achieve.
+            >   To view details about an image, use the command: "docker image inspect imageName:imageTag". Example: "docker image inspect nginx:latest".
+            >   To view details about a container, use the command: "docker container inspect containerName". Example: "docker container inspect mongodb".
+            >   To view details about a volume, use the command: "docker volume inspect volumeName". Example: "docker volume inspect mongodatarestore".
+            >   To view details about a network, use the command: "docker network inspect networkName". Example: "docker network inspect mongonetwork".
+
+        *   Prune
+
+            >   The prune feature is a tool used to clean up unused Docker resources, such as stopped containers,
+                images not associated with any container, or volumes no longer in use by any container.
+            >   To remove all stopped containers, use the command: "docker container prune".
+            >   To remove all images not used by any container, use the command: "docker image prune".
+            >   To remove all networks not used by any container, use the command: "docker network prune".
+            >   To remove all volumes not used by any container, use the command: "docker volume prune".
+            >   To remove everything (containers, networks, cache, images, but not volumes) in a single command,
+                use: "docker system prune".
+            >   When executing these commands, you will receive a confirmation prompt asking whether you want to
+                proceed with deletion (y) or not (n). Select y to confirm or n to cancel.
