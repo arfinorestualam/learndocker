@@ -169,3 +169,84 @@
 - **Contoh**: `docker network rm mynetwork`
 - **Kegunaan**: Menghapus network yang tidak digunakan oleh container.
 
+### Jaringan Container (Container Network)
+
+- **Deskripsi**: Setelah membuat jaringan, kita dapat menambahkan container ke dalamnya. Jika beberapa container berada di dalam jaringan yang sama, mereka dapat saling berkomunikasi. Gunakan opsi `--network` saat membuat container untuk menentukan jaringan yang digunakan.
+
+#### Menambahkan Container ke Jaringan
+- **Perintah**: `docker container create --name namacontainer --network namajaringan image:tag`
+- **Contoh**: `docker container create --name nginxnet --network nginxnetwork nginx:latest`
+- **Penggunaan**: Membuat container dan menghubungkannya ke jaringan tertentu.
+
+#### Komunikasi Antar Container
+- Container yang berada di dalam jaringan yang sama dapat saling berkomunikasi menggunakan hostname, yaitu nama container.
+- **Contoh Setup**:
+    1. Buat jaringan:  
+       `docker network create mongonetwork`
+    2. Buat container MongoDB yang terhubung ke jaringan:  
+       `docker container create --name mongodb --network mongonetwork --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
+    3. Buat container MongoExpress yang terhubung ke jaringan:  
+       `docker container create --name mongodbexpress --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://fin:fin@mongodb:27017/" mongo-express:latest`
+    4. Jalankan kedua container:  
+       `docker container start mongodb`  
+       `docker container start mongodbexpress`
+    5. Akses MongoExpress melalui `localhost:8081`. Container MongoExpress dapat berkomunikasi dengan MongoDB melalui jaringan.
+
+#### Menghapus Container dari Jaringan
+- **Perintah**: `docker network disconnect namajaringan namacontainer`
+- **Contoh**: `docker network disconnect mongonetwork mongodb`
+- **Penggunaan**: Melepaskan container dari jaringan.
+
+#### Menambahkan Container ke Jaringan yang Sudah Ada
+- **Perintah**: `docker network connect namajaringan namacontainer`
+- **Contoh**: `docker network connect mongonetwork mongodb`
+- **Penggunaan**: Menghubungkan container yang sudah dibuat ke jaringan yang ada.
+
+### Inspect
+
+- **Deskripsi**: Fitur `inspect` menyediakan informasi detail tentang objek Docker seperti image, container, volume, dan jaringan.
+
+#### Memeriksa Image
+- **Perintah**: `docker image inspect namagambar:tag`
+- **Contoh**: `docker image inspect nginx:latest`
+- **Penggunaan**: Melihat detail sebuah image, seperti variabel lingkungan dan port.
+
+#### Memeriksa Container
+- **Perintah**: `docker container inspect namacontainer`
+- **Contoh**: `docker container inspect mongodb`
+- **Penggunaan**: Melihat detail sebuah container, seperti volume dan jaringan.
+
+#### Memeriksa Volume
+- **Perintah**: `docker volume inspect namavolume`
+- **Contoh**: `docker volume inspect mongodatarestore`
+- **Penggunaan**: Melihat detail sebuah volume.
+
+#### Memeriksa Jaringan
+- **Perintah**: `docker network inspect namajaringan`
+- **Contoh**: `docker network inspect mongonetwork`
+- **Penggunaan**: Melihat detail sebuah jaringan.
+
+### Prune
+
+- **Deskripsi**: Fitur `prune` menghapus objek Docker yang tidak digunakan, seperti container yang berhenti, image yang tidak terpakai, serta jaringan atau volume yang tidak digunakan.
+
+#### Menghapus Container yang Berhenti
+- **Perintah**: `docker container prune`
+- **Penggunaan**: Menghapus semua container yang sudah berhenti.
+
+#### Menghapus Image yang Tidak Terpakai
+- **Perintah**: `docker image prune`
+- **Penggunaan**: Menghapus image yang tidak digunakan oleh container manapun.
+
+#### Menghapus Jaringan yang Tidak Terpakai
+- **Perintah**: `docker network prune`
+- **Penggunaan**: Menghapus jaringan yang tidak digunakan oleh container manapun.
+
+#### Menghapus Volume yang Tidak Terpakai
+- **Perintah**: `docker volume prune`
+- **Penggunaan**: Menghapus volume yang tidak digunakan oleh container manapun.
+
+#### Menghapus Semua Objek yang Tidak Terpakai
+- **Perintah**: `docker system prune`
+- **Penggunaan**: Menghapus semua objek yang tidak digunakan (container, jaringan, cache, dan image, tetapi tidak termasuk volume).
+- **Catatan**: Akan muncul prompt konfirmasi (`y`/`n`) sebelum eksekusi.

@@ -168,3 +168,85 @@
 - **Command**: `docker network rm networkname`
 - **Example**: `docker network rm mynetwork`
 - **Usage**: Remove a network that is not used by any container.
+
+### Container Network
+
+- **Description**: After creating a network, we can add containers to it. If multiple containers exist within the same network, they can communicate with each other. Use the `--network` option when creating a container to specify its network.
+
+#### Adding a Container to a Network
+- **Command**: `docker container create --name containername --network networkname image:tag`
+- **Example**: `docker container create --name nginxnet --network nginxnetwork nginx:latest`
+- **Usage**: Create a container and attach it to a specified network.
+
+#### Communication Between Containers
+- Containers in the same network can communicate using the hostname, which is the container name.
+- **Example Setup**:
+    1. Create a network:  
+       `docker network create mongonetwork`
+    2. Create a MongoDB container attached to the network:  
+       `docker container create --name mongodb --network mongonetwork --env MONGO_INITDB_ROOT_USERNAME=fin --env MONGO_INITDB_ROOT_PASSWORD=fin mongo:latest`
+    3. Create a MongoExpress container attached to the network:  
+       `docker container create --name mongodbexpress --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://fin:fin@mongodb:27017/" mongo-express:latest`
+    4. Start both containers:  
+       `docker container start mongodb`  
+       `docker container start mongodbexpress`
+    5. Access MongoExpress via `localhost:8081`. The MongoExpress container can communicate with MongoDB through the network.
+
+#### Removing a Container from a Network
+- **Command**: `docker network disconnect networkname containername`
+- **Example**: `docker network disconnect mongonetwork mongodb`
+- **Usage**: Detach a container from a network.
+
+#### Connecting an Existing Container to a Network
+- **Command**: `docker network connect networkname containername`
+- **Example**: `docker network connect mongonetwork mongodb`
+- **Usage**: Attach an already created container to an existing network.
+
+### Inspect
+
+- **Description**: The `inspect` feature provides detailed information about Docker objects such as images, containers, volumes, and networks.
+
+#### Inspecting an Image
+- **Command**: `docker image inspect imagename:tag`
+- **Example**: `docker image inspect nginx:latest`
+- **Usage**: View details of an image, such as environment variables and ports.
+
+#### Inspecting a Container
+- **Command**: `docker container inspect containername`
+- **Example**: `docker container inspect mongodb`
+- **Usage**: View details of a container, such as volumes and networks.
+
+#### Inspecting a Volume
+- **Command**: `docker volume inspect volumename`
+- **Example**: `docker volume inspect mongodatarestore`
+- **Usage**: View details of a volume.
+
+#### Inspecting a Network
+- **Command**: `docker network inspect networkname`
+- **Example**: `docker network inspect mongonetwork`
+- **Usage**: View details of a network.
+
+### Prune
+
+- **Description**: The `prune` feature removes unused Docker objects, such as stopped containers, dangling images, and unused networks or volumes.
+
+#### Pruning Stopped Containers
+- **Command**: `docker container prune`
+- **Usage**: Remove all stopped containers.
+
+#### Pruning Unused Images
+- **Command**: `docker image prune`
+- **Usage**: Remove images not used by any containers.
+
+#### Pruning Unused Networks
+- **Command**: `docker network prune`
+- **Usage**: Remove networks not used by any containers.
+
+#### Pruning Unused Volumes
+- **Command**: `docker volume prune`
+- **Usage**: Remove volumes not used by any containers.
+
+#### Pruning All Unused Objects
+- **Command**: `docker system prune`
+- **Usage**: Remove all unused objects (containers, networks, cache, and images, but not volumes).
+- **Note**: Confirmation prompt (`y`/`n`) appears before execution.
